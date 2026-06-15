@@ -4,6 +4,21 @@
 #include <time.h>
 #include "strutture.h"
 
+// Generazione del TIMESTAMP
+Timestamp generaTimestamp(Data dataSimulata) {
+    Timestamp ts;
+    ts.anno = dataSimulata.anno;
+    ts.mese = dataSimulata.mese;
+    ts.giorno = dataSimulata.giorno;
+
+    time_t rawtime;
+    struct tm * timeinfo;
+    time(&rawtime);
+    timeinfo = localtime(&rawtime);
+    ts.ora = timeinfo->tm_hour; ts.minuto = timeinfo->tm_min; ts.secondo = timeinfo->tm_sec;
+    return ts;
+}
+
 // Creazione dell'UTENTE
 Utente* creaUtente(const char* username, const char* password, const char* iban) {
     Utente* nuovo = (Utente*)malloc(sizeof(Utente));
@@ -121,4 +136,58 @@ void eliminaMovimentoProgrammato(Utente* u, const char* descrizione) {
     printf(" [X] Errore: Nessun movimento trovato con il nome '%s'.\n", descrizione);
 }
 
+// --- Implementazione NOTIFICHE (Pila) ---
+void pushNotifica(PilaNotifiche *pila, const char* msg) {
+    NodoPila *nuovo = (NodoPila*)malloc(sizeof(NodoPila));
+    if(nuovo != NULL) {
+        strcpy(nuovo->messaggio, msg);
+        nuovo->next = *pila;
+        *pila = nuovo;
+    }
+}
 
+void popNotifica(PilaNotifiche *pila) {
+    if (*pila == NULL) {
+        printf(" Nessuna nuova notifica da leggere.\n");
+        return;
+    }
+    NodoPila *temp = *pila;
+    printf(" NOTIFICA RECENTE: %s\n", temp->messaggio);
+    *pila = (*pila)->next;
+    free(temp);
+}
+
+// --- Implementazione BONIFICI (Coda) ---
+void inizializzaCoda(CodaBonifici *coda) {
+    coda->front = NULL;
+    coda->rear = NULL;
+}
+
+// --- Creazione Bonifico in Coda ---
+void enqueueBonifico(CodaBonifici *coda, const char* mittente, const char* iban, double importo, Data data) {
+    NodoCodaBonifico *nuovo = (NodoCodaBonifico*)malloc(sizeof(NodoCodaBonifico));
+    if (nuovo == NULL) return;
+    
+    strcpy(nuovo->mittente, mittente);
+    strcpy(nuovo->ibanBeneficiario, iban);
+    nuovo->importo = importo;
+    nuovo->dataInserimento = data;
+    nuovo->next = NULL;
+
+    if (coda->rear == NULL) {
+        coda->front = coda->rear = nuovo;
+        return;
+    }
+    coda->rear->next = nuovo;
+    coda->rear = nuovo;
+}
+
+// --- Elaborazione Bonifico ---
+NodoCodaBonifico* dequeueBonifico(CodaBonifici *coda) {
+    if (coda->front == NULL) return NULL;
+    NodoCodaBonifico *temp = coda->front;
+    coda->front = coda->front->next;
+    if (coda->front == NULL) 
+        coda->rear = NULL;
+    return temp;
+}
