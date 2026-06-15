@@ -2,7 +2,7 @@
 
 <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMjE0ZWNhYmVlODk5MjcwMzExZGUzYTM1YWUwNTdlZTMyMTE1YzVjNiZlcD12MV9pbnRlcm5hbF9naWZzX2dpZklkJmN0PWc/xT9IgzoZoKBvdH1VNC/giphy.gif" width="400" alt="Coding Banking System">
 
-# 🏦 DATASHEET DEFINITIVO - SISTEMA BANCARIO AVANZATO C 🏦
+# 🏦 DATASHEET (NON) DEFINITIVO - SISTEMA BANCARIO AVANZATO C 🏦
 
 ![Lingua](https://img.shields.io/badge/Lingua-C-00599C?style=for-the-badge&logo=c&logoColor=white)
 ![Architettura](https://img.shields.io/badge/Architettura-Modulare-FF6F00?style=for-the-badge)
