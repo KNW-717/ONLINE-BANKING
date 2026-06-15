@@ -7,7 +7,7 @@
 ![Lingua](https://img.shields.io/badge/Lingua-C-00599C?style=for-the-badge&logo=c&logoColor=white)
 ![Architettura](https://img.shields.io/badge/Architettura-Modulare-FF6F00?style=for-the-badge)
 ![Paradigma](https://img.shields.io/badge/Struttura-Dinamica-8A2BE2?style=for-the-badge)
-![Status](https://img.shields.io/badge/WORK_IN_PROGRESS-30%25-orange?style=for-the-badge)
+![Status](https://img.shields.io/badge/WORK_IN_PROGRESS-35%25-orange?style=for-the-badge)
 
 </div>
 
@@ -72,7 +72,9 @@
 *   **inizializzaCoda:** Imposta front e rear a NULL.
 *   **enqueueBonifico:** Inserimento rapido in coda (`rear->next = nuovo`).
 *   **dequeueBonifico:** Estrazione rapida dalla testa (`front = front->next`) per l'Admin.
+*   **liberaDatabase:** Scorre l'albero Utente->Transazione+Movimento+Pila e distrugge ogni nodo con `free()`. Previene memory leak.
+*   **eliminaUtente:** Scorre la ListaUtenti, sgancia i puntatori prev/next e chiama la deallocazione a cascata (Transazioni, Movimenti, Notifiche) prima di eseguire la `free()` sul nodo radice.
 
 #### 🔍 -> SOTTO-LOGICHE E DETTAGLI IMPLEMENTATIVI (`strutture.c`):
 *   **`time_t rawtime` / `struct tm * timeinfo`:** Variabili della libreria `<time.h>` usate in `generaTimestamp` per estrarre ora, minuto e secondo reali dal SO.
-*   **Logica di Sgancio Liste (`eliminaMovimentoProgrammato`):** Utilizza due puntatori (`curr` e `prec`). prec == NULL,`significa che il nodo da eliminare è la testa`, quindi si aggiorna direttamente il puntatore principale alla lista (es. `u->programmati = curr->next`).
+*   **Logica di Sgancio Liste (`eliminaMovimentoProgrammato` / `eliminaUtente`):** Utilizza due puntatori (`curr` e `prec`). prec == NULL,`significa che il nodo da eliminare è la testa`, quindi si aggiorna direttamente il puntatore principale alla lista (es. `u->programmati = curr->next`).
