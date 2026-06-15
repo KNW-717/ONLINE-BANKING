@@ -191,3 +191,93 @@ NodoCodaBonifico* dequeueBonifico(CodaBonifici *coda) {
         coda->rear = NULL;
     return temp;
 }
+
+// --- Prevenzione Memory Leak: Deallocazione completa dell'albero dei dati ---
+void liberaDatabase(ListaUtenti db) { 
+    Utente* currU = db;
+
+    //Seleziona tutti gli utenti di volta in volta
+    while (currU != NULL) {
+        Utente* nextU = currU->next;
+
+        //Libera Memoria Transazioni
+        Transazione* currT = currU->storico;
+        while (currT != NULL) {
+            Transazione* nextT = currT->next;
+            free(currT);
+            currT = nextT;
+        }
+        
+        //Libera Memoria Movimenti
+        Movimento* currM = currU->programmati;
+        while (currM != NULL) {
+            Movimento* nextM = currM->next;
+            free(currM);
+            currM = nextM;
+        }
+
+        //Libera Memoria Notifiche
+        NodoPila* currP = currU->notifiche;
+        while (currP != NULL) {
+            NodoPila* nextP = currP->next;
+            free(currP);
+            currP = nextP;
+        }
+
+        //Elimina per ogni Utente
+        free(currU);
+        currU = nextU;
+    }
+}
+
+// ---Eliminazione Utente da Database (serve a admin) ---
+bool eliminaUtente(ListaUtenti* lista, const char* username) {
+    Utente* curr = *lista;
+    Utente* prec = NULL;
+
+    while (curr != NULL) {
+        if (strcmp(curr->username, username) == 0) {
+            
+            // Fase 1: Sgancio dalla Lista Principale
+            if (prec == NULL) {
+                *lista = curr->next; // Era il primo elemento
+            } else {
+                prec->next = curr->next; // Era nel mezzo o in fondo
+            }
+
+            // Fase 2: Deallocazione dello Storico Transazioni
+            Transazione* t = curr->storico;
+            while (t != NULL) {
+                Transazione* nextT = t->next;
+                free(t);
+                t = nextT;
+            }
+
+            // Fase 3: Deallocazione dei Movimenti Programmati
+            Movimento* m = curr->programmati;
+            while (m != NULL) {
+                Movimento* nextM = m->next;
+                free(m);
+                m = nextM;
+            }
+            // Fae 4: Pulizia NOtifiche 
+            NodoPila* p = curr->notifiche;
+            while (p != NULL) {
+            NodoPila* nextP = p->next;
+            free(p);
+            p = nextP;
+        }
+
+            // Fase 5: Deallocazione del Nodo Utente
+            free(curr);
+            return true; // Eliminazione completata con successo
+        }
+        prec = curr;
+        curr = curr->next;
+    }
+
+    return false; // Utente non trovato
+}
+
+
+
