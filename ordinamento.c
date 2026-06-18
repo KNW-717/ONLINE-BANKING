@@ -93,3 +93,36 @@ void ordinaUtenti(ListaUtenti* lista, int criterio) {
         lptr = ptr1;
     }
 }
+
+// --- Filtra Storico Per Mese/Anno ---
+void filtraStoricoPerMese(Utente* u, int meseScelto, int annoScelto, int limite) {
+    printf(ANSI_COLOR_CYAN "\n--- STORICO: %02d/%04d ---\n" ANSI_COLOR_RESET, meseScelto, annoScelto);
+    Transazione* t = u->storico;
+    bool trovato = false;
+    int conteggio = 0;
+
+    while (t != NULL && (limite == 0 || conteggio < limite)) {
+        if (t->dataOraOperazione.mese == meseScelto && t->dataOraOperazione.anno == annoScelto) {
+
+            // Analisi semantica della stringa per decidere il colore
+            bool isUscita = (strstr(t->tipo, "Prelievo") || strstr(t->tipo, "Inviato") || strstr(t->tipo, "Esterno"));
+            
+            // Assegna colore in base al valore di "isUscita"
+            const char* cColor = isUscita ? ANSI_COLOR_RED : ANSI_COLOR_GREEN;
+
+            // Assegna segno in base al valore di "isUscita"
+            char segno = isUscita ? '-' : '+';
+
+            printf(" [%02d/%02d/%04d %02d:%02d:%02d] %-15s | %s%c%8.2lf EUR%s\n",
+                t->dataOraOperazione.giorno, t->dataOraOperazione.mese, t->dataOraOperazione.anno,
+                t->dataOraOperazione.ora, t->dataOraOperazione.minuto, t->dataOraOperazione.secondo,
+                t->tipo, cColor, segno, t->importo, ANSI_COLOR_RESET);
+
+            trovato = true;
+            conteggio++;  // continua per elencare tutte le operazioni in quel mese/anno
+        }
+        t = t->next;
+    }
+    if(!trovato) printf(ANSI_COLOR_YELLOW " [!] Nessuna transazione trovata per questo mese.\n" ANSI_COLOR_RESET);
+}
+
