@@ -78,3 +78,10 @@
 #### 🔍 -> SOTTO-LOGICHE E DETTAGLI IMPLEMENTATIVI (`strutture.c`):
 *   **`time_t rawtime` / `struct tm * timeinfo`:** Variabili della libreria `<time.h>` usate in `generaTimestamp` per estrarre ora, minuto e secondo reali dal SO.
 *   **Logica di Sgancio Liste (`eliminaMovimentoProgrammato` / `eliminaUtente`):** Utilizza due puntatori (`curr` e `prec`). prec == NULL,`significa che il nodo da eliminare è la testa`, quindi si aggiorna direttamente il puntatore principale alla lista (es. `u->programmati = curr->next`).
+  
+### 🏦 --- MODULO: MOTORE BANCARIO (`motore_bancario.h` / `motore_bancario.c`) ---
+**Responsabilità:** Calcolo matematico, alterazione saldi e gestione transazionale.
+
+*   **verificaDisponibilita:** Clausola di Guardia per prevenire che il conto vada in rosso.
+*   **effettuaRicarica:** Incrementa il saldo e chiama `aggiungiTransazione`.
+*   **effettuaPrelievo:** Controlla fondi, decrementa e chiama `aggiungiTransazione`.
