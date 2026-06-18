@@ -30,7 +30,7 @@ bool effettuaPrelievo(Utente* u, double importo, Data dataSimulata) {
     return true;
 }
 
-// --- Cerca utente nel Sistema, Verifica Disponibilità, Effettua P2P e Aggiorna sald su conti utente ---
+// --- Cerca utente nel Sistema, Verifica Disponibilità, Effettua P2P e Aggiorna saldi su conti utente ---
 bool effettuaP2P(Utente* mittente, ListaUtenti listaSistema, const char* usernameBeneficiario, double importo, Data dataSimulata) {
     if (importo <= 0) return false;
 
@@ -67,4 +67,72 @@ bool effettuaP2P(Utente* mittente, ListaUtenti listaSistema, const char* usernam
 
     printf("Trasferimento P2P completato.\n");
     return true;
+}
+
+// --- Cerca Iban nel Sistema, Verifica Disponibilità, Congela Saldo mittente, Prenota il BONIFICO ---
+bool effettuaBonifico(Utente* mittente, ListaUtenti listaSistema, const char* ibanBeneficiario, double importo, Data dataSimulata, CodaBonifici* coda) {
+    if (importo <= 0) return false;
+
+    // POinter ALiasing -->Iban Mittente deve essere DIVERSO da Iban Beneficiario
+    if (strcmp(mittente->iban, ibanBeneficiario) == 0) {
+        printf("OPERAZIONE NEGATA: Non puoi disporre un bonifico verso il tuo stesso IBAN.\n");
+        return false;
+    }
+    
+    if (!verificaDisponibilita(mittente, importo)) 
+        return false;
+
+    mittente->saldo -= importo; // Congela Saldo Mittente
+    enqueueBonifico(coda, mittente->username, ibanBeneficiario, importo, dataSimulata);
+
+    // Notifica privata solo per il mittente
+    char logTx[150];
+    sprintf(logTx, "Bonifico (%.2lf EUR) in coda. Saldo disponibile aggiornato: %.2lf EUR.", importo, mittente->saldo);
+    pushNotifica(&(mittente->notifiche), logTx);
+
+    printf(" [V] Bonifico accodato per l'elaborazione interbancaria.\n");
+    printf("     Fondi bloccati preventivamente. Nuovo saldo disponibile: %.2lf EUR\n", mittente->saldo);
+
+    return true;
+}
+
+// --- Elaborazione Coda Bonifici (ZONA ADMIN) ---
+void elaboraCodaBonifici(ListaUtenti listaSistema, Data dataSimulata, CodaBonifici* coda) {
+    NodoCodaBonifico *b = dequeueBonifico(coda);
+    if (b == NULL) {
+        printf(" [!] La coda bonifici e' vuota. Nessuna transazione pendente.\n");
+        return;
+    }
+
+    printf(" Elaborazione Bonifico: %s -> %s (%.2lf EUR)\n", b->mittente, b->ibanBeneficiario, b->importo);
+
+    // Ricerca Utenti nel sistema (per username -> Mittente e per iban -> Beneficiario) 
+    Utente* mittente = cercaUtentePerUsername(listaSistema, b->mittente);
+    Utente* beneficiarioInterno = cercaUtentePerIBAN(listaSistema, b->ibanBeneficiario);
+
+    // Aggiorna ANCHE il saldo del BENEFICIARIO se presente nel sistema
+    if (mittente != NULL) {
+        if (beneficiarioInterno != NULL) {
+            beneficiarioInterno->saldo += b->importo;
+            aggiungiTransazione(mittente, dataSimulata, "Bonifico_Inviato", b->ibanBeneficiario, b->importo);
+            aggiungiTransazione(beneficiarioInterno, dataSimulata, "Bonifico_Ricevuto", mittente->iban, b->importo);
+
+            // Notifica per il destinatario
+            char logRx[150];
+            sprintf(logRx, "ACCREDITO: Ricevuto bonifico di %.2lf EUR da %s.", b->importo, mittente->username);
+            pushNotifica(&(beneficiarioInterno->notifiche), logRx);
+        } 
+        else // Aggiorna SOLO saldo Mittente 
+        {
+            aggiungiTransazione(mittente, dataSimulata, "Bonifico_Esterno", b->ibanBeneficiario, b->importo);
+        }
+
+        // Notifica di conferma per il mittente
+        char logTx[150];
+        sprintf(logTx, "ELABORATO: Il tuo bonifico di %.2lf EUR verso %s e' andato a buon fine.", b->importo, b->ibanBeneficiario);
+        pushNotifica(&(mittente->notifiche), logTx);
+
+        printf(" [V] Bonifico accreditato con successo!\n");
+    }
+    free(b); //Deallocazione memoria riservata 
 }
