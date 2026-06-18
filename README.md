@@ -14,10 +14,10 @@
 **AUTORE/PROGETTO:** Gallina Giovanni Antonio / Pacenza Fortunato  
 **LINGUAGGIO:** C  
 **ARCHITETTURA:** Modulare (Header/Source separation)  
-**PARADIGMI IMPLEMENTATI:** Strutture Dinamiche (Liste, Pila, Coda), Ricorsione, Ricerca.  
+**PARADIGMI IMPLEMENTATI:** Strutture Dinamiche (Liste, Pila, Coda), Ricorsione, Ricerca, Ordinamento (BubbleSort ottimizzato), Filtraggio Dati
+
 
 > ⚠️ **NOTA:** PARADIGMI da INSERIRE:
-   *  Ordinamento (BubbleSort ottimizzato)
    *  File Binari / Database
    *  Gestione persistente dei file
 
@@ -100,7 +100,8 @@
 *   **comparaTimestamp:** Verifica priorità tra date e tempi (anno, mese, ecc).
 *   **ordinaStorico:** Bubble Sort pre-condizionato (con 2 criteri). Ordina le transazioni dell'utente.
 *   **ordinaUtenti:** Bubble Sort sulle stringhe e i double. Ordina gli utenti per saldo.
-
+*   **filtraStoricoPerMese:** Analizza le struct e usa `strstr()` (libreria `string.h`) per decifrare l'output visivo e stampare i colori.
 #### 🔍 -> SOTTO-LOGICHE E DETTAGLI IMPLEMENTATIVI (`ordinamento.c`):
 *   **`bool scambiato`:** Variabile di flag usata nei Bubble Sort per uscire dal ciclo while prematuramente se l'array risulta già ordinato (Ottimizzazione Caso Migliore).
 *   **Puntatore `lptr`:** Limite destro del Bubble Sort. A ogni iterazione del ciclo principale, `lptr` viene arretrato all'ultimo nodo scambiato, restringendo il campo di ricerca così da dover analizzare meno nodi.
+*   **`strstr()` in `filtraStoricoPerMese`:** Sottofunzione di libreria (<string.h>) che cerca substringhe (es. "Prelievo") per dedurre se applicare ANSI_COLOR_RED o ANSI_COLOR_GREEN e "-" o "+" alla stampa su termiinale.
