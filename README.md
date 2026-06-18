@@ -105,3 +105,17 @@
 *   **`bool scambiato`:** Variabile di flag usata nei Bubble Sort per uscire dal ciclo while prematuramente se l'array risulta già ordinato (Ottimizzazione Caso Migliore).
 *   **Puntatore `lptr`:** Limite destro del Bubble Sort. A ogni iterazione del ciclo principale, `lptr` viene arretrato all'ultimo nodo scambiato, restringendo il campo di ricerca così da dover analizzare meno nodi.
 *   **`strstr()` in `filtraStoricoPerMese`:** Sottofunzione di libreria (<string.h>) che cerca substringhe (es. "Prelievo") per dedurre se applicare ANSI_COLOR_RED o ANSI_COLOR_GREEN e "-" o "+" alla stampa su termiinale.
+  
+### 📈 --- MODULO: PREVISIONE (`previsione.h` / `previsione.c`) ---
+**Responsabilità:** Motore asincrono per la simulazione finanziaria.
+
+*   **giorniInMese:** Stabilisce i giorni di un mese (include calcolo anno bisestile).
+*   **avanzaGiorno:** Incrementa giorno/mese/anno per far scorrere la simulazione.
+*   **dataMaggioreOUguale:** Comparatore tra 2 date.
+*   **generaPrevisione:** L'algoritmo per la Previsione. Clona il saldo. Avanza temporalmente nel futuro, applica l'operatore "Modulo (`%`)" tra deltaMesi e intervalloMesi per verificare la periodicità del movimento, traccia il bilancio, stampa warning collisioni e riporta esattamente dopo quanti mesi il conto andrebbe in rosso.
+
+#### 🔍 -> SOTTO-LOGICHE E DETTAGLI IMPLEMENTATIVI (`previsione.c`):
+*   **Anno Bisestile:** `((anno % 4 == 0 && anno % 100 != 0) || (anno % 400 == 0))`. L'algoritmo matematico universale usato in `giorniInMese()` per Febbraio.
+*   **Operatore Modulo in `generaPrevisione`:** `(deltaMesi % m->intervalloMesi == 0)`. Calcola la differenza esatta in mesi dalla creazione della transazione e verifica se è un multiplo perfetto della periodicità del movimento (es: 1=mensile, 3=trimestrale).
+*   **Clone Saldo (`double saldoVirtuale`):** Variabile isolata che permette al motore di fare simulazioni senza alterare il saldo reale.
+
