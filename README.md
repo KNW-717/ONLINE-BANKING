@@ -85,3 +85,10 @@
 *   **verificaDisponibilita:** Clausola di Guardia per prevenire che il conto vada in rosso.
 *   **effettuaRicarica:** Incrementa il saldo e chiama `aggiungiTransazione`.
 *   **effettuaPrelievo:** Controlla fondi, decrementa e chiama `aggiungiTransazione`.
+*   **effettuaBonifico:** Modello "Pre-Autorizzazione". Scala il saldo (blocco fondi) e prenota Bonifico chiamando `enqueueBonifico()`. Avvisa il mittente.
+*   **elaboraCodaBonifici:** Chiama `dequeueBonifico()`. Trova mittente e destinatario (se interno). Accredita fondi, traccia log storico e invia notifiche asincrone.
+
+#### 🔍 -> SOTTO-LOGICHE E DETTAGLI IMPLEMENTATIVI (`motore_bancario.c`):
+*   **Pointer Aliasing P2P (`if mittente == beneficiario`):** Misura di sicurezza in `effettuaP2P`. Impedisce che il sistema processi le operazioni `+=` e `-=` sulla stessa area di memoria simultaneamente, annullando la validità del saldo.
+*   **Pointer Aliasing BONIFICO(`if (strcmp(mittente->iban,ibanBeneficiario)==0)`):** Misura di sicurezza in `EffettuaBonifico`. Impedisce che il sistmea processi le operazioni `+=` e `-=` sulla stessa area di memoria simultaneamente, annullando la validità del saldo.
+*   **Buffer di Log (`char log[150]`):** Stringhe temporanee pre-formattate tramite `sprintf()` utilizzate per iniettare i valori float (`%.2lf`) e le stringhe `%s` nelle code delle PilaNotifiche.
