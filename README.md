@@ -92,3 +92,15 @@
 *   **Pointer Aliasing P2P (`if mittente == beneficiario`):** Misura di sicurezza in `effettuaP2P`. Impedisce che il sistema processi le operazioni `+=` e `-=` sulla stessa area di memoria simultaneamente, annullando la validità del saldo.
 *   **Pointer Aliasing BONIFICO(`if (strcmp(mittente->iban,ibanBeneficiario)==0)`):** Misura di sicurezza in `EffettuaBonifico`. Impedisce che il sistmea processi le operazioni `+=` e `-=` sulla stessa area di memoria simultaneamente, annullando la validità del saldo.
 *   **Buffer di Log (`char log[150]`):** Stringhe temporanee pre-formattate tramite `sprintf()` utilizzate per iniettare i valori float (`%.2lf`) e le stringhe `%s` nelle code delle PilaNotifiche.
+
+### 🔀 --- MODULO: ORDINAMENTO E FILTRI (`ordinamento.h` / `ordinamento.c`) ---
+**Responsabilità:** Algoritmi di Sorting logico (Bubble Sort ottimizzato) e filtraggio data.
+
+*   **scambiaTransazioni / scambiaUtenti:** Funzioni helper di swap dei dati.
+*   **comparaTimestamp:** Verifica priorità tra date e tempi (anno, mese, ecc).
+*   **ordinaStorico:** Bubble Sort pre-condizionato (con 2 criteri). Ordina le transazioni dell'utente.
+*   **ordinaUtenti:** Bubble Sort sulle stringhe e i double. Ordina gli utenti per saldo.
+
+#### 🔍 -> SOTTO-LOGICHE E DETTAGLI IMPLEMENTATIVI (`ordinamento.c`):
+*   **`bool scambiato`:** Variabile di flag usata nei Bubble Sort per uscire dal ciclo while prematuramente se l'array risulta già ordinato (Ottimizzazione Caso Migliore).
+*   **Puntatore `lptr`:** Limite destro del Bubble Sort. A ogni iterazione del ciclo principale, `lptr` viene arretrato all'ultimo nodo scambiato, restringendo il campo di ricerca così da dover analizzare meno nodi.
