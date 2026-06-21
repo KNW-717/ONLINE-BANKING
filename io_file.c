@@ -3,6 +3,14 @@
 #include <string.h>
 #include "io_file.h"
 
+// ---Struttura Utente per File BInario ---
+typedef struct {
+    char user[50];
+    char pass[50];
+    char iban[15];
+    double saldo;
+} RecordUtenteBinario;
+
 // --- Salva il Database -> (username, passsword, iban, saldo, storico, movimenti programmati) ---
 void salvaDatabase(ListaUtenti lista, const char* nomeFile) {
     FILE *f = fopen(nomeFile, "w");
@@ -122,3 +130,60 @@ ListaUtenti caricaDatabase(const char* nomeFile) {
     fclose(f); // chiudi file
     return lista; //ritorna la lista (il database)
 }
+
+// --- Salva Database di Backup in Binario ---
+void salvaBackupBinario(ListaUtenti lista, const char* nomeFileBin) {
+    FILE *f = fopen(nomeFileBin, "wb"); // 'wb' = write binary
+    if (f == NULL) return;
+
+    Utente *cu = lista;
+    RecordUtenteBinario rec;
+    int conteggio = 0;
+
+    while (cu != NULL) {
+        
+        // Popoliamo la struct piatta (senza i puntatori perché corromperebbero la Memoria al caricamento)
+        strcpy(rec.user, cu->username);
+        strcpy(rec.pass, cu->password);
+        strcpy(rec.iban, cu->iban);
+        rec.saldo = cu->saldo;
+
+        fwrite(&rec, sizeof(RecordUtenteBinario), 1, f);
+        cu = cu->next;
+        conteggio++;
+    }
+    fclose(f);
+    printf(" [V] Dump Binario creato: scritti %d record strutturati.\n", conteggio);
+}
+
+// --- Esplora File Binario con Fseek ---
+void esploraBackupBinarioConFseek(const char* nomeFileBin, int indiceBersaglio) {
+    FILE *f = fopen(nomeFileBin, "rb"); // 'rb' = read binary
+    if (f == NULL) {
+        printf(" [X] Errore: Nessun backup binario trovato.\n");
+        return;
+    }
+
+    // Uso di fseek e SEEK_END per calcolare la dimensione del file
+    fseek(f, 0, SEEK_END);
+    long dimensioneFile = ftell(f);
+    int numeroRecord = dimensioneFile / sizeof(RecordUtenteBinario);
+
+    if (indiceBersaglio >= numeroRecord || indiceBersaglio < 0) {
+        printf(" [X] L'indice %d e' fuori limite (Record totali: %d).\n", indiceBersaglio, numeroRecord);
+        fclose(f);
+        return;
+    }
+
+    // Uso di fseek con SEEK_SET per saltare DIRETTAMENTE all'indice desiderato (Accesso Casuale)
+    fseek(f, indiceBersaglio * sizeof(RecordUtenteBinario), SEEK_SET);
+
+    RecordUtenteBinario estr;
+    fread(&estr, sizeof(RecordUtenteBinario), 1, f);
+
+    printf("\n --- Lettura Rapida Binaria all'Indice [%d] ---\n", indiceBersaglio);
+    printf(" USERNAME: %s\n IBAN: %s\n SALDO: %.2lf\n", estr.user, estr.iban, estr.saldo);
+
+    fclose(f);
+}
+
