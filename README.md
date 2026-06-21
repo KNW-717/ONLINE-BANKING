@@ -7,20 +7,18 @@
 ![Lingua](https://img.shields.io/badge/Lingua-C-00599C?style=for-the-badge&logo=c&logoColor=white)
 ![Architettura](https://img.shields.io/badge/Architettura-Modulare-FF6F00?style=for-the-badge)
 ![Paradigma](https://img.shields.io/badge/Struttura-Dinamica-8A2BE2?style=for-the-badge)
-![Status](https://img.shields.io/badge/WORK_IN_PROGRESS-35%25-orange?style=for-the-badge)
+![Status](https://img.shields.io/badge/WORK_IN_PROGRESS-70%25-orange?style=for-the-badge)
 
 </div>
 
 **AUTORE/PROGETTO:** Gallina Giovanni Antonio / Pacenza Fortunato  
 **LINGUAGGIO:** C  
 **ARCHITETTURA:** Modulare (Header/Source separation)  
-**PARADIGMI IMPLEMENTATI:** Strutture Dinamiche (Liste, Pila, Coda), Ricorsione, Ricerca, Ordinamento (BubbleSort ottimizzato), Filtraggio Dati
-
+**PARADIGMI IMPLEMENTATI:** Strutture Dinamiche (Liste, Pila, Coda), Ricorsione, Ricerca, Ordinamento (BubbleSort ottimizzato), Filtraggio Dati, Gestione persistente dei file (Database)
 
 > ⚠️ **NOTA:** PARADIGMI da INSERIRE:
-   *  File Binari / Database
-   *  Gestione persistente dei file
-
+   *  File Binari
+   *  Interfaccia Main
   
 ---
 
@@ -119,3 +117,12 @@
 *   **Operatore Modulo in `generaPrevisione`:** `(deltaMesi % m->intervalloMesi == 0)`. Calcola la differenza esatta in mesi dalla creazione della transazione e verifica se è un multiplo perfetto della periodicità del movimento (es: 1=mensile, 3=trimestrale).
 *   **Clone Saldo (`double saldoVirtuale`):** Variabile isolata che permette al motore di fare simulazioni senza alterare il saldo reale.
 
+### 💾 --- MODULO: I/O STORAGE E BINARIO (`io_file.h` / `io_file.c`) ---
+**Responsabilità:** Persistenza del database in Memoria.
+
+*   **salvaDatabase:** `fopen(.."w")`, scrive in modo sequenziale (`fprintf`) la struttura del database.
+*   **caricaDatabase:** `fopen(.."r")`, legge (`fscanf`) e ricostruisce in memoria la struttura del Database. Usa puntatori a Coda (`tTail`, `mTail`) per facilitare il caricamento in coda).
+   
+#### 🔍 -> SOTTO-LOGICHE E DETTAGLI IMPLEMENTATIVI (`io_file.c`):
+*   **`char tipoRecord[10]`:** Variabile usata in `caricaDatabase` per estrarre la label pre-formattata dalla struttura del database -> (USER, TRANS, MOV).
+*   **Puntatori `tTail` e `mTail`:** Cache di memoria che ricorda l'ultimo nodo inserito nella lista. Facilitando l'inserimento in coda in fase di ricostruzione del database.
