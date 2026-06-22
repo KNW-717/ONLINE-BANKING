@@ -336,3 +336,76 @@ void menuAdmin(ListaUtenti* db, Data* dataAttuale, CodaBonifici* coda) {
 
     free(backup); attendiInvio();
 }
+
+// --- Funzione esegui controllo di integrità --> Confronta Dump Binario di Sicurezza e lo confronta con il database in clear text al fine di rilevare Manomissioni ---
+// Se presente manomissione --> Carica il sistema dal Dump di sicurezza binario e Aggiorna il database in .txt 
+// OPPURE permette di procedere con il database manomesso e poi aggiornare il dump di sicurezza
+void eseguiControlloIntegrita(ListaUtenti* db, const char* nomeFileBin) {
+    FILE *f = fopen(nomeFileBin, "rb");
+    if (f == NULL) return; 
+
+    fseek(f, 0, SEEK_END);
+    long fileSize = ftell(f);
+    rewind(f);
+
+    int numRecords = fileSize / sizeof(RecordUtenteBinario);
+    RecordUtenteBinario* backup = (RecordUtenteBinario*)malloc(fileSize);
+    fread(backup, sizeof(RecordUtenteBinario), numRecords, f);
+    fclose(f);
+
+    bool manomissione = false;
+    stampaIntestazione("SISTEMA ANTI-INTROMISSIONE (AUDIT DI SICUREZZA)");
+
+    Utente* curr = *db;
+    while(curr != NULL) {
+        bool trovato = false;
+        for(int i = 0; i < numRecords; i++) {
+            if(strcmp(curr->username, backup[i].user) == 0) {
+                trovato = true;
+                if(curr->saldo != backup[i].saldo || strcmp(curr->password, backup[i].pass) != 0 || strcmp(curr->iban, backup[i].iban) != 0) {
+                    manomissione = true;
+                    printf(ANSI_COLOR_RED " [!] MANOMISSIONE RILEVATA: Utente '%s'\n" ANSI_COLOR_RESET, curr->username);
+                    printf("     Dati DB Testo: Saldo %.2lf, Pass: %s\n", curr->saldo, curr->password);
+                    printf(ANSI_COLOR_GREEN "     Dati Sicuri  : Saldo %.2lf, Pass: %s\n\n" ANSI_COLOR_RESET, backup[i].saldo, backup[i].pass);
+                }
+                break;
+            }
+        }
+        if(!trovato) {
+            manomissione = true;
+            printf(ANSI_COLOR_RED " [!] INIEZIONE RILEVATA: Utente fantasma '%s' aggiunto irregolarmente nel TXT.\n" ANSI_COLOR_RESET, curr->username);
+        }
+        curr = curr->next;
+    }
+
+    for(int i = 0; i < numRecords; i++) {
+        if(cercaUtentePerUsername(*db, backup[i].user) == NULL) {
+            manomissione = true;
+            printf(ANSI_COLOR_RED " [!] ELIMINAZIONE RILEVATA: Utente '%s' rimosso irregolarmente dal TXT.\n" ANSI_COLOR_RESET, backup[i].user);
+        }
+    }
+
+    if(manomissione) {
+        printf(ANSI_COLOR_YELLOW " Ripristinare i dati forzando il backup binario? (1=SI, 0=NO): " ANSI_COLOR_RESET);
+        if(leggiIntero(false) == 1) {
+            curr = *db;
+            while(curr != NULL) {
+                for(int i = 0; i < numRecords; i++) {
+                    if(strcmp(curr->username, backup[i].user) == 0) {
+                        curr->saldo = backup[i].saldo;
+                        strcpy(curr->password, backup[i].pass);
+                        strcpy(curr->iban, backup[i].iban);
+                    }
+                }
+                curr = curr->next;
+            }
+            printf(ANSI_COLOR_GREEN " [V] Database neutralizzato. Credenziali, IBAN e Saldi ripristinati.\n" ANSI_COLOR_RESET);
+            printf("     (Nota: gli utenti fantasma vanno eliminati dal pannello Admin).\n");
+        } else {
+            printf(ANSI_COLOR_RED " [X] Avviso: Il sistema sta operando con un database compromesso.\n" ANSI_COLOR_RESET);
+        }
+    } else {
+        printf(ANSI_COLOR_GREEN " [V] Scansione completata. Hash dei dati coincidente. Nessuna anomalia.\n" ANSI_COLOR_RESET);
+    }
+    free(backup); attendiInvio();
+}
