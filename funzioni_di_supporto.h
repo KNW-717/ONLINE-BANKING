@@ -14,5 +14,5 @@ double leggiDouble(bool consentiNegativo);
 bool validaIBAN(const char* iban);
 void generaIBAN(char* buffer);
 void impostaDataSimulata(Data* dataAttuale);
-
+void generaHash(const char* input, char* outputHash);
 #endif // CONSOLE_UTILS_H_INCLUDED
