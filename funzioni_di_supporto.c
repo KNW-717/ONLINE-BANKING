@@ -159,3 +159,17 @@ void impostaDataSimulata(Data* dataAttuale) {
     printf(ANSI_COLOR_GREEN"\n [V] Sistema avanzato al: %02d/%02d/%04d\n"ANSI_COLOR_RESET, dataAttuale->giorno, dataAttuale->mese, dataAttuale->anno);
     attendiInvio();
 }
+
+// --- Crittografia Matematica (djb2 Hash) ---
+ void generaHash(const char* input, char* outputHash) {
+    unsigned long hash = 5381;
+    int c;
+
+    // Spostamento di bit (shift) molto più veloce della moltiplicazione: hash * 33 + c
+    while ((c = *input++)) {
+        hash = ((hash << 5) + hash) + c; 
+    }
+    
+    // Convertiamo il numero in una stringa esadecimale compatta e la salviamo
+    sprintf(outputHash, "%lx", hash);
+}
