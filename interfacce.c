@@ -247,13 +247,29 @@ static void sottomenuAdminUtente(Utente* u, Data* dataAttuale) {
 
         if (scelta == 1) { printf(" Nuovo Username: "); leggiStringa(u->username, 50); attendiInvio(); }
             else if (scelta == 2) {
-            printf(" Nuova Password: ");
             char passRaw[50];
-            leggiStringa(passRaw, 50);
+            bool passValida = false;
+            
+            printf(ANSI_COLOR_YELLOW "\n [POLICY] La password deve avere ESATTAMENTE 10 caratteri,\n"
+                                     "          essere solo alfanumerica e NON contenere l'username.\n" ANSI_COLOR_RESET);
+            
+            while (!passValida) {
+                printf(" Nuova Password: ");
+                leggiStringa(passRaw, 50);
+                
+                // Chiamata alla funzione con regex
+                if (validaPassword(passRaw, u->username)) {
+                    passValida = true;
+                } else {
+                    printf(ANSI_COLOR_RED " [X] ERRORE POLICY: Riprova rispettando le regole sopra indicate.\n" ANSI_COLOR_RESET);
+                }
+            }
+            
             generaHash(passRaw, u->password);
             printf(ANSI_COLOR_GREEN" [V] Password modificata e cifrata con successo.\n"ANSI_COLOR_RESET);
             attendiInvio();
-        }        else if (scelta == 3) { printf(" Nuovo Saldo: "); u->saldo = leggiDouble(true); attendiInvio(); }
+        }
+  else if (scelta == 3) { printf(" Nuovo Saldo: "); u->saldo = leggiDouble(true); attendiInvio(); }
         else if (scelta == 4) { generaPrevisione(u, *dataAttuale, 6); attendiInvio(); }
     }
 }
@@ -284,9 +300,25 @@ void menuAdmin(ListaUtenti* db, Data* dataAttuale, CodaBonifici* coda) {
                     printf(ANSI_COLOR_YELLOW"     Scegli un identificativo differente.\n"ANSI_COLOR_RESET);
                 } else usernameValido = true;
             }
-           printf(" Password: ");
+
+            printf(" Nuova Password: ");
             char passRaw[50];
-            leggiStringa(passRaw, 50);
+            bool passValida = false;
+            
+            printf(ANSI_COLOR_YELLOW "\n [POLICY] La password deve avere ESATTAMENTE 10 caratteri,\n"
+                                     "          essere solo alfanumerica e NON contenere l'username.\n" ANSI_COLOR_RESET);
+                                     
+            while (!passValida) {
+                printf(" Password: ");
+                leggiStringa(passRaw, 50);
+                
+                // Chiamata alla funzione passando la stringa 'u' (che contiene l'username appena scelto)
+                if (validaPassword(passRaw, u)) {
+                    passValida = true;
+                } else {
+                    printf(ANSI_COLOR_RED " [X] ERRORE POLICY: Riprova rispettando le regole sopra indicate.\n" ANSI_COLOR_RESET);
+                }
+            }
 
             char passHash[50];
             generaHash(passRaw, passHash);
