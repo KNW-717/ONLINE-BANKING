@@ -173,3 +173,33 @@ void impostaDataSimulata(Data* dataAttuale) {
     // Convertiamo il numero in una stringa esadecimale compatta e la salviamo
     sprintf(outputHash, "%lx", hash);
 }
+
+// --- Validazione Strutturale della Password ---
+bool validaPassword(const char* password, const char* username) {
+    // 1. Controllo Sottostringa: Cerca dinamicamente l'username nella password
+    // (strstr restituisce NULL se non trova corrispondenze, che e' cio' che vogliamo)
+    if (strstr(password, username) != NULL) {
+        return false;
+    }
+
+    // 2. Controllo Strutturale tramite Regex
+    regex_t regex;
+
+    // STRUTTURA PASSWORD
+    // strstr(password, username) = NULL              = NON È CONTENUTO L'USERNAME ALL'INTERNO DELLA PASSWORD
+    // ^                                              = Inizio stringa
+    // [a-zA-Z0-9]                                    = Qualsiasi lettera (maiuscola o minuscola) o numero
+    // {10}                                           = Esattamente 10 occorrenze
+    // $                                              = Fine stringa
+    
+    int ret = regcomp(&regex, "^[a-zA-Z0-9]{10}$", REG_EXTENDED);
+    
+    if (ret != 0) return false; // IN caso di errore regex
+
+    // Esegue il match
+    ret = regexec(&regex, password, 0, NULL, 0);
+    regfree(&regex); // Libera la memoria allocata dalla regex 
+    
+    // Ritorna true solo se la regex matcha perfettamente (ret == 0)
+    return (ret == 0);
+}
