@@ -15,4 +15,5 @@ bool validaIBAN(const char* iban);
 void generaIBAN(char* buffer);
 void impostaDataSimulata(Data* dataAttuale);
 void generaHash(const char* input, char* outputHash);
+bool validaPassword(const char* password, const char* username);
 #endif // CONSOLE_UTILS_H_INCLUDED
