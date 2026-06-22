@@ -34,18 +34,24 @@ int main() {
         printf(" Scelta: ");
         cmd = leggiIntero(false);
 
-        if (cmd == 1) {
-            char usr[50], pwd[50];
+       if (cmd == 1) {
+            char usr[50], pwdRaw[50], pwdHash[50];
+            
             printf("\n Username: "); leggiStringa(usr, 50);
-            printf(" Password: "); leggiStringa(pwd, 50);
+            printf(" Password: "); leggiStringa(pwdRaw, 50); // <-- Sostituito leggiPassword con leggiStringa
 
-            if (strcmp(usr, "admin") == 0 && strcmp(pwd, "adminpass") == 0) {
+            // Controlliamo prima se è l'admin 
+            if (strcmp(usr, "admin") == 0 && strcmp(pwdRaw, "adminpass") == 0) {
                 menuAdmin(&db, &dataSimulata, &codaCentrale);
             } 
             else 
             {
                 Utente* found = cercaUtentePerUsername(db, usr);
-                if (found && strcmp(found->password, pwd) == 0) {
+                
+                // Generazione Hash e match con il database
+                generaHash(pwdRaw, pwdHash);
+                
+                if (found && strcmp(found->password, pwdHash) == 0) {
                     menuUtente(found, &db, &dataSimulata, &codaCentrale);
                 } 
                 else 
@@ -54,7 +60,7 @@ int main() {
                     attendiInvio();
                 }
             }
-        } 
+        }
         else if (cmd == 2) {
             impostaDataSimulata(&dataSimulata);
         }     
