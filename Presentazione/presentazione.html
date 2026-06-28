@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ecosistema Bancario C99 - Presentazione Interattiva</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reset.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css" id="theme">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+
+  <style>
+    :root {
+      --bg-0: #030712;
+      --bg-1: #081124;
+      --bg-2: #0f172a;
+      --ink: #e5eefc;
+      --muted: #9fb3d9;
+      --cyan: #47d7ff;
+      --teal: #34f5c5;
+      --blue: #60a5fa;
+      --violet: #b388ff;
+      --amber: #ffcc66;
+      --rose: #ff7aa2;
+      --green: #5efc8d;
+      --red: #ff6b6b;
+      --panel: rgba(7, 17, 34, 0.72);
+      --panel-2: rgba(13, 27, 52, 0.78);
+      --line: rgba(115, 161, 255, 0.22);
+      --glow: 0 0 0 1px rgba(110, 168, 255, .18), 0 20px 60px rgba(0,0,0,.38);
+    }
+
+    html, body {
+      background:
+        radial-gradient(circle at 20% 20%, rgba(71,215,255,.16), transparent 24%),
+        radial-gradient(circle at 80% 10%, rgba(179,136,255,.14), transparent 22%),
+        radial-gradient(circle at 50% 80%, rgba(52,245,197,.10), transparent 20%),
+        linear-gradient(135deg, var(--bg-0), var(--bg-1) 46%, var(--bg-2));
+      color: var(--ink);
+      overflow: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px);
+      background-size: 52px 52px;
+      mask-image: radial-gradient(circle at center, black 58%, transparent 100%);
+      opacity: .30;
+      animation: driftGrid 18s linear infinite;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: -20%;
+      pointer-events: none;
+      background:
+        conic-gradient(from 0deg at 50% 50%, rgba(71,215,255,.08), rgba(179,136,255,.08), rgba(52,245,197,.07), rgba(71,215,255,.08));
+      filter: blur(90px);
+      animation: auraSpin 24s linear infinite;
+      opacity: .9;
+    }
+
+    @keyframes driftGrid {
+      from { transform: translate3d(0,0,0); }
+      to { transform: translate3d(-26px,-26px,0); }
+    }
+
+    @keyframes auraSpin {
+      from { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(1.08); }
+      to { transform: rotate(360deg) scale(1); }
+    }
+
+    @keyframes floatY {
+      0%,100% { transform: translateY(0px); }
+      50% { transform: translateY(-12px); }
+    }
+
+    @keyframes pulseGlow {
+      0%,100% { box-shadow: 0 0 0 1px rgba(110,168,255,.18), 0 18px 48px rgba(0,0,0,.34), 0 0 22px rgba(71,215,255,.12); }
+      50% { box-shadow: 0 0 0 1px rgba(110,168,255,.26), 0 20px 60px rgba(0,0,0,.42), 0 0 34px rgba(71,215,255,.22); }
+    }
+
+    @keyframes beamSweep {
+      from { transform: translateX(-120%) skewX(-24deg); }
+      to { transform: translateX(240%) skewX(-24deg); }
+    }
+
+    @keyframes dotMove {
+      from { transform: translateY(0) rotate(0deg); opacity: .15; }
+      50% { opacity: .45; }
+      to { transform: translateY(-120vh) rotate(240deg); opacity: 0; }
+    }
+
+    .ambient {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .ambient span {
+      position: absolute;
+      display: block;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(71,215,255,.32), rgba(71,215,255,0));
+      animation: dotMove linear infinite;
+      filter: blur(0.2px);
+    }
+
+    .ambient span:nth-child(1){ left:6%; width:12px; height:12px; bottom:-10vh; animation-duration:20s; animation-delay:0s; }
+    .ambient span:nth-child(2){ left:14%; width:28px; height:28px; bottom:-12vh; animation-duration:28s; animation-delay:3s; }
+    .ambient span:nth-child(3){ left:26%; width:14px; height:14px; bottom:-8vh; animation-duration:18s; animation-delay:1s; }
+    .ambient span:nth-child(4){ left:38%; width:22px; height:22px; bottom:-10vh; animation-duration:24s; animation-delay:5s; }
+    .ambient span:nth-child(5){ left:52%; width:18px; height:18px; bottom:-9vh; animation-duration:23s; animation-delay:2s; }
+    .ambient span:nth-child(6){ left:66%; width:34px; height:34px; bottom:-16vh; animation-duration:32s; animation-delay:4s; }
+    .ambient span:nth-child(7){ left:78%; width:12px; height:12px; bottom:-10vh; animation-duration:17s; animation-delay:7s; }
+    .ambient span:nth-child(8){ left:88%; width:24px; height:24px; bottom:-12vh; animation-duration:26s; animation-delay:1.5s; }
+
+    .reveal {
+      font-family: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 34px;
+      z-index: 2;
+    }
+
+    .reveal .slides { text-align: left; }
+    .reveal section { padding: 8px 8px 18px 8px; }
+
+    .reveal h1, .reveal h2, .reveal h3, .reveal h4 {
+      text-transform: none;
+      letter-spacing: -0.02em;
+      margin: 0 0 .28em 0;
+      text-shadow: 0 8px 28px rgba(0,0,0,.35);
+    }
+
+    .reveal h1 { font-size: 2.45em; line-height: 1.02; font-weight: 800; }
+    .reveal h2 { font-size: 1.5em; color: #f4f8ff; font-weight: 760; }
+    .reveal h3 { font-size: .9em; color: var(--muted); font-weight: 560; letter-spacing: .02em; text-transform: uppercase; }
+    .reveal p, .reveal li { font-size: .63em; line-height: 1.55; color: #d9e6ff; }
+
+    .hero {
+      position: relative;
+      min-height: 640px;
+      display: grid;
+      grid-template-columns: 1.35fr .95fr;
+      gap: 26px;
+      align-items: center;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 28px;
+      background: linear-gradient(120deg, rgba(71,215,255,.08), rgba(179,136,255,.08), rgba(52,245,197,.06));
+      box-shadow: inset 0 0 0 1px rgba(133,177,255,.12);
+      animation: pulseGlow 5s ease-in-out infinite;
+    }
+
+    .hero-left, .hero-right { position: relative; z-index: 1; }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      background: rgba(11,24,46,.65);
+      border: 1px solid rgba(121,170,255,.24);
+      border-radius: 999px;
+      color: #cbe4ff;
+      font-size: .36em;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+      backdrop-filter: blur(8px);
+    }
+
+    .kicker::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--teal), var(--cyan));
+      box-shadow: 0 0 18px rgba(71,215,255,.65);
+    }
+
+    .gradient-text {
+      background: linear-gradient(90deg, #ffffff 0%, #d3f6ff 20%, #75e9ff 48%, #a9b8ff 70%, #e6f1ff 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .box {
+      background: linear-gradient(180deg, rgba(9,17,33,.80), rgba(8,18,35,.62));
+      padding: 22px;
+      border-radius: 18px;
+      border-left: 5px solid var(--cyan);
+      font-size: 0.65em;
+      text-align: left;
+      box-shadow: var(--glow);
+      border-right: 1px solid rgba(255,255,255,0.05);
+      border-top: 1px solid rgba(255,255,255,0.05);
+      margin-top: 16px;
+    }
+
+    .highlight { color: var(--cyan); text-shadow: 0 0 10px rgba(71,215,255,0.3); }
+    .code-inline {
+      font-family: "Fira Code", monospace;
+      font-size: .95em;
+      color: #b7edff;
+      background: rgba(71,215,255,.08);
+      border: 1px solid rgba(71,215,255,.12);
+      padding: 2px 8px;
+      border-radius: 8px;
+    }
+
+    .section-frame {
+      position: relative;
+      border-radius: 26px;
+      padding: 22px 24px 26px;
+      background: linear-gradient(180deg, rgba(9,17,33,.80), rgba(8,18,35,.62));
+      border: 1px solid rgba(118,163,255,.16);
+      box-shadow: var(--glow);
+      overflow: hidden;
+    }
+
+    .section-frame::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,.035), transparent);
+      transform: translateX(-120%);
+      animation: beamSweep 11s linear infinite;
+      pointer-events: none;
+    }
+
+    .section-badge {
+      display: inline-block;
+      padding: 9px 14px;
+      border-radius: 999px;
+      font-size: .32em;
+      text-transform: uppercase;
+      letter-spacing: .13em;
+      border: 1px solid rgba(146,191,255,.20);
+      background: rgba(9,18,33,.8);
+      color: #d8ebff;
+      margin-bottom: 14px;
+    }
+
+    .grid-2, .cols-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      align-items: stretch;
+      margin-top: 16px;
+    }
+
+    .cols-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      align-items: stretch;
+      margin-top: 16px;
+    }
+
+    .card {
+      position: relative;
+      background: var(--panel);
+      border: 1px solid rgba(117,166,255,.15);
+      border-radius: 22px;
+      padding: 18px 18px 16px;
+      box-shadow: var(--glow);
+      overflow: hidden;
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent, var(--cyan)), transparent);
+      opacity: .9;
+    }
+
+    .card h4 { font-size: .56em; margin-bottom: 10px; color: #f4f8ff; font-weight: 700; }
+    .card p, .card li { font-size: .53em; color: #d7e7ff; line-height: 1.55; }
+
+    .accent-arch { --accent: var(--cyan); }
+    .accent-data { --accent: var(--violet); }
+    .accent-memory { --accent: var(--teal); }
+    .accent-engine { --accent: var(--green); }
+    .accent-sort { --accent: var(--amber); }
+    .accent-time { --accent: #7ee0ff; }
+    .accent-storage { --accent: var(--blue); }
+    .accent-security { --accent: var(--red); }
+    .accent-ui { --accent: #d29bff; }
+    .accent-main { --accent: #8ef0c8; }
+
+    .image-container {
+      margin: 14px auto;
+      width: 98%;
+      text-align: center;
+      position: relative;
+      padding: 6px;
+      background: linear-gradient(90deg, var(--bg-1), var(--cyan), var(--teal), var(--bg-1));
+      background-size: 300% 300%;
+      animation: pulseGlow 5s ease-in-out infinite;
+      border-radius: 16px;
+    }
+
+    .image-container img {
+      max-width: 100%;
+      max-height: 440px;
+      border-radius: 12px;
+      display: block;
+      margin: 0 auto;
+      background-color: #000;
+      cursor: zoom-in; /* Indica all'utente che può fare clic per ingrandire */
+    }
+
+    .terminal {
+      background: rgba(3, 10, 19, .88);
+      border: 1px solid rgba(108,160,255,.18);
+      border-radius: 24px;
+      box-shadow: var(--glow);
+      overflow: hidden;
+      margin-top: 14px;
+    }
+
+    .terminal-header {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 14px 18px;
+      background: rgba(255,255,255,.04);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot.red { background: var(--red); }
+    .dot.yellow { background: var(--amber); }
+    .dot.green { background: var(--green); }
+    
+    .terminal-body {
+      font-family: "Fira Code", "Courier New", monospace;
+      font-size: .48em;
+      line-height: 1.58;
+      padding: 16px 20px 18px;
+      color: #cae6ff;
+      white-space: pre-wrap;
+    }
+
+    .prompt { color: var(--green); font-weight: bold; }
+    .cmd-error { color: var(--red); font-weight: bold; }
+    .cmd-success { color: var(--green); font-weight: bold; }
+    .cmd-warning { color: var(--amber); font-weight: bold; }
+
+    .flow-wrap {
+      border-radius: 24px;
+      background: rgba(5,14,27,.8);
+      border: 1px solid rgba(117,166,255,.16);
+      padding: 14px;
+      box-shadow: var(--glow);
+      margin-top: 12px;
+    }
+
+    /* CONTROLLI DI CONTENIMENTO RIGIDI PER MERMAID E CURSORE ZOOM */
+    .mermaid { 
+      font-size: 16px !important; 
+      color: #eaf2ff;
+      max-width: 100% !important;
+      height: auto !important;
+      display: flex;
+      justify-content: center;
+      cursor: zoom-in; /* Indica all'utente che può fare clic per ingrandire */
+    }
+    .mermaid svg {
+      max-width: 100% !important;
+      max-height: 400px !important;
+      height: auto !important;
+    }
+
+    .reveal .progress span {
+      background: linear-gradient(90deg, var(--cyan), var(--teal), var(--violet));
+    }
+
+    .reveal .controls { color: #dbe9ff; }
+
+    @media (max-width: 1100px) {
+      .hero, .grid-2, .cols-2, .cols-3 { grid-template-columns: 1fr; }
+      .reveal { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient">
+    <span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span>
+  </div>
+
+  <div class="reveal">
+    <div class="slides">
+
+      <section data-transition="zoom">
+        <div class="section-frame" style="min-height: 580px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+          <div class="kicker">Presentazione Interattiva</div>
+          <h1 class="gradient-text highlight">Oltre il Codice 🚀</h1>
+          <h3>Progettazione di un SISTEMA BANCARIO AVANZATO</h3>
+          <p style="margin-top: 20px;">
+            <small>Sviluppato da:<br><strong>Giovanni Antonio Gallina & Fortunato Pacenza</strong></small>
+          </p>
+          <div class="box" style="text-align: center; border-left: none; border-top: 4px solid var(--cyan); max-width: 28em; margin-top: 24px;">
+            <em>"Un'architettura modulare che divide gli headers (.h) dai file di implementazione (.c)."</em>
+          </div>
+          <p style="font-size: 0.44em; color: var(--muted); margin-top: 20px;">(Utilizza i tasti direzionali ➡️ e ⬇️ per navigare l'architettura. Premi Alt+Clic per zoomare)</p>
+        </div>
+      </section>
+
+      <section>
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Capitolo 1 · Filosofia</div>
+            <h2>Capitolo 1: Filosofia di Sicurezza e Fase di Boot</h2>
+            <div class="card accent-arch" style="margin-top: 20px;">
+              <p style="font-size: 0.75em; line-height: 1.7;">Nel mondo reale, i file memorizzati su disco rigido sono esposti a manomissioni arbitrarie o corruzioni strutturali.</p>
+              <p style="font-size: 0.75em; line-height: 1.7; margin-top: 14px;">Il nostro ecosistema applica il paradigma di isolamento <strong class="highlight">Zero-Trust Architecture</strong>. All'avvio del file <span class="code-inline">main()</span>, prima di esporre qualsivoglia interfaccia utente, viene invocata la routine di Audit di Sicurezza <span class="code-inline">eseguiControlloIntegrita()</span> per validare la coerenza dei dati caricati in Memoria.</p>
+            </div>
+            <div class="box" style="text-align: center; border-left: 5px solid var(--violet);">
+              ↓ Scorri in basso per l'analisi tecnica del Boot, del Login e del Controllo Temporale.
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Boot · Audit OK</div>
+            <h2>1.1 Scansione di Integrità Superata ✔️</h2>
+            <p style="font-size: 0.55em; color: var(--muted);">Se il database testuale non ha subito alterazioni esterne (la funzione confronta gli utenti e i rispettivi saldi), l'interfaccia si sblocca istantaneamente restituendo un hash coincidente.</p>
+            <div class="image-container">
+              <img src="audit-sicurezza-no-compromissioni.png" alt="Audit di Sicurezza - Nessuna Anomalia">
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Boot · Rilevamento Attacco</div>
+            <h2>1.2 Rilevamento Attacco e Manomissione 🚨</h2>
+            <p style="font-size: 0.55em; color: var(--muted);">Se un malintenzionato altera i saldi o inietta utenti "fantasma" all'interno del file di testo in chiaro, l'algoritmo intercetta la discrepanza strutturale, isola le min threats in Memoria e segnala l'intrusione all'operatore.</p>
+            <div class="image-container">
+              <img src="audit-sicurezza-si-compromissioni.png" alt="Attacco Rilevato">
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Boot · Disaster Recovery Annullato</div>
+            <h2>1.3 Scenario Disaster Recovery (Annullato) ❌</h2>
+            <p style="font-size: 0.55em; color: var(--muted);">Se l'operatore decide di non ripristinare i dati digitando <span class="code-inline">0</span>, il sistema emette un warning critico permanente. Il software continuerà a girare in uno stato instabile e compromesso.</p>
+            <div class="image-container">
+              <img src="databasse-non-ripristinato-usando-db-binario.png" alt="Database Compromesso">
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Boot · Ripristino Forzato</div>
+            <h2>1.4 Ripristino Forzato dal File Binario 🔄</h2>
+            <p style="font-size: 0.55em; color: var(--muted);">Selezionando l'opzione <span class="code-inline">1</span>, il software esegue il ripristino. Sfrutta i record a dimensionamento fisso del file binario per sovrascrivere i blocchi corrotti in RAM e purificare istantaneamente il database testuale.</p>
+            <div class="image-container">
+              <img src="databasse-ripristinato-usando-db-binario.png" alt="Disaster Recovery Completato">
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Autenticazione · Porta di Accesso</div>
+            <h2>1.5 La Porta del Sistema: Schermata Login 🚪</h2>
+            <div class="image-container">
+              <img src="main-login.png" alt="Schermata Login Principale">
+            </div>
+            <div class="card accent-security">
+              <p style="font-size: 0.52em; color: #edf5ff;"><strong>Involucro e Hashing:</strong> L'acquisizione delle credenziali è affidata alla <span class="code-inline">leggiStringa()</span>, implementata per azzerare il rischio di Buffer Overflow troncando il terminatore <span class="code-inline">\n</span>. La password inserita viene data in pasto a <span class="code-inline">generaHash()</span> (algoritmo djb2) e convertita in stringa esadecimale prima del match.</p>
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Stato · Validazione Temporale</div>
+            <h2>1.6 Violazione Temporale Intercettata 🛑</h2>
+            <div class="image-container">
+              <img src="impostazione-data-simulata-non-valida.png" alt="Cambio Data Fallito">
+            </div>
+            <div class="card accent-security">
+              <p style="font-size: 0.52em; color: #edf5ff;"><strong>Compressione in DataGrezza:</strong> La funzione <span class="code-inline">impostaDataSimulata()</span> comprime l'anagrafica del calendario in un intero puro tramite la formula <span class="code-inline">Anno * 10000 + Mese * 100 + Giorno</span>. Se la nuova data grezza è minore di quella attuale, viene rilevato un "viaggio nel passato" e quindi l'input non viene convalidato.</p>
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Stato · Timeline Avanzata</div>
+            <h2>1.7 Avanzamento Temporale Lineare ⏳</h2>
+            <div class="image-container">
+              <img src="impostazione-data-simulata-valida.png" alt="Cambio Data Corretto">
+            </div>
+            <p style="font-size: 0.55em; color: #d9e6ff; margin-top: 10px;">Quando la data immessa è cronologicamente valida, il sistema aggiorna la variabile globale di stato <span class="code-inline">dataSimulata</span>. Questo sblocca lo scorrimento del tempo necessario per processare i movimenti programmati e calcolare le code di compensazione dei bonifici.</p>
+          </div>
+        </section>
+      </section>
+
+      <section>
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Capitolo 2 · Supervisione</div>
+            <h2>Capitolo 2: Gestione Utenti e Modulo Amministrazione</h2>
+            <div class="card accent-engine" style="margin-top: 20px;">
+              <p style="font-size: 0.75em; line-height: 1.7;">L'Amministratore è il cuore gestionale del sistema. Dispone di poteri operativi radiali su tutta la memoria, potendo ispezionare, alterare o recidere i nodi delle liste (eliminare utenti, transazioni, movimenti).</p>
+              <p style="font-size: 0.75em; line-height: 1.7; margin-top: 14px;">Tuttavia, per impedire l'introduzione di dati incoerenti, ogni singola funzione di inserimento o modifica è sottoposta a vincoli architetturali rigidi: costrizioni sintattiche tramite <strong class="highlight">Espressioni Regolari REGEX</strong>, smaltimento asincrono in code FIFO e persistenza dei record fisici strutturati ad accesso casuale.</p>
+            </div>
+            <div class="box" style="text-align: center; border-left: 5px solid var(--amber);">
+              ↓ Scorri in basso per analizzare le 7 opzioni del Pannello di Controllo Amministratore.
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Admin · Hub</div>
+            <h2>2.0 Il Pannello Admin Autenticato 👑</h2>
+            <div class="image-container">
+              <img src="main-login-admin.png" alt="Pannello di Controllo Amministratore">
+            </div>
+            <p style="font-size: 0.55em; color: #d9e6ff;">Il punto di instradamento principale per la supervisione. Da questo loop l'operatore può deviare l'esecuzione del software verso i moduli di creazione, gestione e manipolazione o i canali di persistenza I/O.</p>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Admin · Opzione 1</div>
+            <h2>2.1 Opzione 1: Registra Nuovo Utente 🔐</h2>
+            <div class="image-container">
+              <img src="admin-processo-registra-nuovo-utente.png" alt="Registra Nuovo Utente">
+            </div>
+            <div class="card accent-data">
+              <p style="font-size: 0.52em; color: #edf5ff;"><strong>Analisi delle Sotto-Logiche:</strong> Prima esegue una ricerca ricorsiva tramite <span class="code-inline">cercaUtentePerUsername()</span> per evitare collisioni di chiavi primarie. Successivamente, la password viene posta sotto esame dal motore <span class="code-inline">validaPassword()</span>: se viola il pattern alfanumerico di 10 caratteri o contiene l'username, viene rifiutata, altrimenti viene trasformata in Hash djb2. L'IBAN viene autogenerato in esadecimale e validato via Regex.</p>
+            </div>
+            <div class="box" style="text-align: center; border-left: 5px solid var(--green);">
+              ↓ Scorri in basso per visualizzare il diagramma logico del flusso di registrazione.
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Diagramma · Registrazione</div>
+            <div class="flow-wrap">
+              <div class="mermaid">
+                flowchart TD
+                    A["main.c / menuAdmin"] --> B["Input credenziali in chiaro"]
+                    B --> C["validaPassword()"]
+                    C -->|Fallisce| D["Loop di policy e rifiuto salvataggio"]
+                    C -->|Passa| E["generaHash()"]
+                    E --> F{"cercaUtentePerUsername() == NULL?"}
+                    F -->|No| G["Username già esistente"]
+                    F -->|Sì| H["generaIBAN()"]
+                    H --> I{"cercaUtentePerIBAN() == NULL?"}
+                    I -->|No| H
+                    I -->|Sì| J["creaUtente()"]
+                    J --> K["inserisciUtente()"]
+                    K --> L["salvaDatabase()"]
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Admin · Opzione 2</div>
+            <h2>2.2 Opzione 2: Analisi Patrimoniale (Sorting) 📊</h2>
+            <div class="image-container">
+              <img src="admin-processo-visualizza-utenti-ordinati-per-saldo.png" alt="Visualizza Utenti Ordinati per Saldo">
+            </div>
+            <div class="card accent-sort">
+              <p style="font-size: 0.52em; color: #edf5ff;"><strong>Bubble Sort su Liste Concatenate:</strong> La selezione richiama la funzione <span class="code-inline">ordinaUtenti()</span>. L'algoritmo ordina i nodi master della RAM scambiando le informazioni interne in base al patrimonio memorizzato nel tipo `double`. Questo permette all'Amministratore di isolare istantaneamente i conti con saldi elevati o in passività.</p>
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Admin · Opzione 3</div>
+            <h2>2.3 Opzione 3: Gestisci Singolo Utente 🛠️</h2>
+            <div class="image-container">
+              <img src="admin-processo-gestione-nuovo-utente.png" alt="Gestione Singolo Utente">
+            </div>
+            <p style="font-size: 0.55em; color: #d9e6ff;">Rintracciato il record dell'utente in RAM, l'Admin accede a un sottomenu isolato che lavora per indirizzo di memoria, consentendo l'aggiornamento d'ufficio di credenziali, saldi o la visualizzazione di report previsionali dedicati.</p>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Admin · Sotto-funzione</div>
+            <h2>2.3.1 Sotto-Funzione 2: Cambio Password 🛡️</h2>
+            <div class="image-container">
+              <img src="admin-processo-gestione-utente-cambio-password-con-policy.png" alt="Cambio Password con Policy">
+            </div>
+            <div class="card accent-security">
+              <p style="font-size: 0.52em; color: #edf5ff;"><strong>Enforcement delle Regole:</strong> Anche la modifica d'ufficio è protetta dallo scudo crittografico. Se l'operatore tenta di inserire una stringa non conforme (es. <span class="code-inline">giopass123</span> che contiene l'username "gio"), la funzione <span class="code-inline">validaPassword()</span> innesca il fallimento strutturale, richiedendo un pattern puramente alfanumerico di 10 caratteri.</p>
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Admin · Opzione 4</div>
+            <h2>2.4 Opzione 4: Radiazione Utente (Cascata) 🗑️</h2>
+            <div class="image-container">
+              <img src="admin-processo-elimiinazione-utente.png" alt="Elimina Utente dal Sistema">
+            </div>
+            <div class="card accent-memory">
+              <p style="font-size: 0.52em; color: #edf5ff;"><strong>Garbage Collection Chirurgica:</strong> La funzione <span class="code-inline">eliminaUtente()</span> effettua lo sgancio dei puntatori della lista master (<span class="code-inline">prev->next = curr->next</span>). Onde evitare la creazione di nodi orfani in RAM, la funzione scende in profondità e dealloca preventivamente tutte le transazioni storiche, i movimenti programmati e la pila notifiche, azzerando i Memory Leaks.</p>
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Admin · Opzione 5</div>
+            <h2>2.5 Opzione 5: Camera di Compensazione (FIFO) ⏳</h2>
+            <div class="image-container">
+              <img src="admin-processo-gestione-bonifici-pendenti.png" alt="Elabora Coda Bonifici Pendenti">
+            </div>
+            <div class="card accent-engine">
+              <p style="font-size: 0.52em; color: #edf5ff;"><strong>Logica di Smaltimento:</strong> I bonifici esterni effettuati dai clienti non toccano subito il destinatario, ma rimangono "congelati" in una coda asincrona. L'Admin, premendo l'opzione 5, innesca la <span class="code-inline">elaboraCodaBonifici()</span>: estrae gli elementi dalla testa della coda rispettando il principio First-In-First-Out, aggiorna i saldi reali e invia le notifiche telematiche.</p>
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Admin · Clausola di Guardia</div>
+            <h2>2.5.1 Clausola di Guardia: Coda Vuota 🛑</h2>
+            <div class="image-container">
+              <img src="admin-processo-elabora-coda-bonifici-VUOTO.png" alt="Elabora Coda Vuoto">
+            </div>
+            <p style="font-size: 0.55em; color: #d9e6ff;">Se la coda non contiene nodi pendenti (<span class="code-inline">front == NULL</span>), l'algoritmo intercetta immediatamente lo stato vuoto tramite una clausola di guardia, impedendo tentativi di dereferenziazione errati e stampando un log pulito.</p>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Admin · Opzione 6</div>
+            <h2>2.6 Opzione 6: Generazione Dump Binario 💾</h2>
+            <div class="image-container">
+              <img src="admin-processo-creazione-dump-database-binario.png" alt="Genera Dump Sicurezza Binario">
+            </div>
+            <p style="font-size: 0.55em; color: #d9e6ff;">La routine <span class="code-inline">salvaBackupBinario()</span> traduce i dati volatili presenti in RAM in blocchi di byte strutturati e non manipolabili, scrivendoli sul disco fisso tramite la funzione nativa <span class="code-inline">fwrite()</span> con modalità di apertura stream <span class="code-inline">"wb"</span>.</p>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Admin · Opzione 7</div>
+            <h2>2.7 Opzione 7: Random Access con fseek ⚡</h2>
+            <div class="image-container">
+              <img src="admin-processo-accesso-veloce-dump-database-binario.png" alt="Accesso Diretto Backup Binario fseek">
+            </div>
+            <div class="card accent-storage">
+              <p style="font-size: 0.52em; color: #edf5ff;"><strong>Complessità Costante O(1):</strong> A differenza dei file di testo (che impongono una scansione sequenziale riga per riga), la funzione <span class="code-inline">esploraBackupBinarioConFseek()</span> calcola matematicamente l'offset in byte moltiplicando l'indice desiderato per la dimensionamento fissa della struct. Sposta il cursore hardware tramite <span class="code-inline">fseek()</span> ed estrae i dati in un colpo solo.</p>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section>
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Capitolo 3 · Operatività</div>
+            <h2>Capitolo 3: Dashboard Utente e Modello Transazionale</h2>
+            <div class="card accent-ui" style="margin-top: 20px;">
+              <p style="font-size: 0.75em; line-height: 1.7;">Se il modulo dell'Amministratore rappresenta la cabina di regia del sistema, il Menu Utente incarna la <strong>Dashboard Operativa Finale</strong>. Questo modulo espone al cliente un'interfaccia interattiva per la gestione quotidiana del proprio patrimonio.</p>
+              <p style="font-size: 0.75em; line-height: 1.7; margin-top: 14px;">Le transazioni ordinarie (Ricariche e Prelievi) lavorano istantaneamente sui saldi, I trasferimenti istantanei (P2P)e Bonfici Programmati, integrano controlli di Pointer Aliasing, mentre i canali di notifica si poggiano su strutture regolate dal principio LIFO.</p>
+            </div>
+            <div class="box" style="text-align: center; border-left: 5px solid var(--blue);">
+              ↓ Scorri in basso per visionare i sottomenu e le schermate dedicate all'Utente.
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Utente · Dashboard</div>
+            <h2>3.0 La Dashboard Cliente Standard 💻</h2>
+            <div class="image-container">
+              <img src="main-login-utente.png" alt="Dashboard Utente Principale">
+            </div>
+            <div class="card accent-ui">
+              <p style="font-size: 0.52em; color: #edf5ff;"><strong>Adattamento Dinamico del Flusso:</strong> Al momento del login, la funzione controlla lo stato del saldo. Se l'utente si trova in una condizione di passività (<span class="code-inline">saldo < 0</span>), il software dirotta forzatamente l'esecuzione verso il <span class="code-inline">menuUtenteInRosso()</span>, congelando ogni operatività in uscita e sbloccando le funzioni standard solo dopo un deposito di ripianamento.</p>
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Utente · Servizi</div>
+            <h2>3.1 L'Hub Operazioni Bancarie 💵</h2>
+            <div class="image-container">
+              <img src="utente-operazioni-bancarie-disponibili.png" alt="Selettore Operazioni Bancarie">
+            </div>
+            <p style="font-size: 0.55em; color: #d9e6ff;">L'opzione 1 del menu principale apre questo sotto-pannello di reindirizzamento operativo. Da qui l'utente convoglia la sua intenzione verso quattro canali alternativi, ciascuno agganciato a specifiche clausole matematiche di validazione.</p>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Utente · Deposito</div>
+            <h2>3.2 Ricarica Conto (Deposito) 📥</h2>
+            <div class="image-container">
+              <img src="utente-operazioni-ricarica.png" alt="Operazione Ricarica">
+            </div>
+            <div class="card accent-engine">
+              <p style="font-size: 0.52em; color: #edf5ff;"><strong>Allocazione Dinamica in O(1):</strong> La funzione <span class="code-inline">effettuaRicarica()</span> acquisisce l'importo tramite il wrapper sicuro <span class="code-inline">leggiIntero()</span>. Incrementa direttamente la variabile reale del saldo ed esegue un inserimento in Testa dello storico movimenti allocando un nuovo nodo con la `malloc()`, operando a costo computazionale costante.</p>
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Utente · Prelievo OK</div>
+            <h2>3.3 Prelievo: Copertura Approvata 📤</h2>
+            <div class="image-container">
+              <img src="utente-operazioni-prelievo-fondi-disponibili.png" alt="Prelievo Fondi Disponibili">
+            </div>
+            <p style="font-size: 0.55em; color: #d9e6ff;">Quando l'utente richiede un prelievo monetario, la funzione <span class="code-inline">effettuaPrelievo()</span> interroga preventivamente la clausola di guardia <span class="code-inline">verificaDisponibilita()</span>. Se i fondi sono capienti, l'importo viene decurtato e viene inserito il record in testa allo storico.</p>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Utente · Prelievo KO</div>
+            <h2>3.4 Prelievo: Operazione Negata 🚫</h2>
+            <div class="image-container">
+              <img src="utente-operazioni-prelievo-fondi-non-disponibili.png" alt="Prelievo Fondi Non Disponibili">
+            </div>
+            <div class="card accent-security">
+              <p style="font-size: 0.52em; color: #edf5ff;"><strong>Clausola di Guardia Attiva:</strong> Se l'ammontare immesso spingerebbe il conto al di sotto dello sbarramento dello zero, la macro <span class="code-inline">verificaDisponibilita()</span> fallisce restituendo <span class="code-inline">false</span>. Il sistema interrompe radialmente l'aggiornamento della RAM, bloccando l'estrazione illecita e notificando lo stato di insufficienza fondi.</p>
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Utente · P2P Fallito</div>
+            <h2>3.5 P2P: Fallimento Ricerca Utente 👤</h2>
+            <div class="image-container">
+              <img src="utente-operazioni-P2P-utente-non-registrato.png" alt="P2P Beneficiario Non Registrato">
+            </div>
+            <div class="card accent-engine">
+              <p style="font-size: 0.52em; color: #edf5ff;"><strong>Logica di Fallback:</strong> Il sistema esegue una ricerca sequenziale ricorsiva in RAM cercandone la corrispondenza. Se <span class="code-inline">cercaUtentePerUsername() == NULL</span>, scatta un menu di emergency a tre rami che permette al cliente di riprovare, convertire l'azione in un bonifico esterno o abortire senza bloccare l'applicativo.</p>
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Utente · P2P OK</div>
+            <h2>3.6 P2P: Trasferimento RAM Sincrono 🤝</h2>
+            <div class="image-container">
+              <img src="utente-operazioni-P2P-utente-registrato.png" alt="P2P Completato">
+            </div>
+            <div class="card accent-engine">
+              <p style="font-size: 0.52em; color: #edf5ff;"><strong>Pointer Aliasing & Notifiche LIFO:</strong> Rintracciato l'indirizzo di memoria del destinatario, un check impedisce il crash se <span class="code-inline">mittente == beneficiario</span>. Successivamente l'algoritmo altera in modo atomico e sincronizzato i due saldi reali, istanzia due transazioni e inietta due avvisi speculari nelle rispettive Pile LIFO.</p>
+            </div>
+            <div class="box" style="text-align: center; border-left: 5px solid var(--cyan);">
+              ↓ Scorri in basso per visualizzare il diagramma logico del flusso P2P.
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Diagramma · Flusso P2P</div>
+            <div class="flow-wrap">
+              <div class="mermaid">
+                flowchart TD
+                    A["menuUtente: username beneficiario"] --> B{"cercaUtentePerUsername()"}
+                    B -->|NULL| C["Fallback: riprova / bonifico / annulla"]
+                    B -->|Trovato| D["Acquisizione importo"]
+                    D --> E["effettuaP2P()"]
+                    E --> F{"mittente == beneficiario?"}
+                    F -->|Sì| G["Abort per pointer aliasing"]
+                    F -->|No| H["verificaDisponibilita()"]
+                    H -->|Falso| I["Fondi insufficienti"]
+                    H -->|Vero| J["mittente->saldo -= importo"]
+                    J --> K["beneficiario->saldo += importo"]
+                    K --> L["aggiungiTransazione() x2"]
+                    L --> M["pushNotifica() x2"]
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Utente · Bonifico KO</div>
+            <h2>3.7 Bonifico: Fallimento Validazione IBAN ❌</h2>
+            <div class="image-container">
+              <img src="utente-operazioni-bonifico-iban-non-valido.png" alt="Bonifico IBAN Non Valido">
+            </div>
+            <div class="card accent-security">
+              <p style="font-size: 0.52em; color: #edf5ff;"><strong>Pattern Matching Attivo:</strong> Quando l'utente inserisce la stringa identificativa del beneficiario, questa viene intercettata dalla funzione <span class="code-inline">validaIBAN()</span>. Se non rispetta l'espressione regolare POSIX <span class="code-inline">^IT-[0-9A-F]{6}$</span>, il sistema blocca il flusso operazione, notifica l'errore e attiva il sottomenu di ripristino o annullamento.</p>
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Utente · Bonifico OK</div>
+            <h2>3.8 Bonifico: IBAN Conforme e Prenotato ✔️</h2>
+            <div class="image-container">
+              <img src="utente-operazioni-bonifico-iban-valido.png" alt="Bonifico IBAN Valido e Prenotato">
+            </div>
+            <div class="card accent-engine">
+              <p style="font-size: 0.52em; color: #edf5ff;"><strong>Pre-Autorizzazione e Accodamento:</strong> Se la stringa supera la Regex, l'importo viene decurtato istantaneamente dal conto del cliente ("Fondi Congelati"). I dati vengono incapsulati in un nuovo elemento e inseriti all'interno di <span class="code-inline">codaCentrale</span> tramite la funzione <span class="code-inline">enqueueBonifico()</span>, rimanendo in attesa dell'approvazione asincrona dell'Admin.</p>
+            </div>
+            <div class="box" style="text-align: center; border-left: 5px solid var(--blue);">
+              ↓ Scorri in basso per visualizzare il diagramma logico della Coda Bonifici.
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Diagramma · Coda Bonifici</div>
+            <div class="flow-wrap">
+              <div class="mermaid">
+                flowchart TD
+                    A["menuUtente: IBAN + importo"] --> B["validaIBAN()"]
+                    B -->|Invalido| C["Errore e fallback"]
+                    B -->|Valido| D["effettuaBonifico()"]
+                    D --> E{"verificaDisponibilita()"}
+                    E -->|Falso| F["Operazione negata"]
+                    E -->|Vero| G["u->saldo -= importo"]
+                    G --> H["enqueueBonifico() in codaCentrale"]
+                    H --> I["pushNotifica() al mittente"]
+                    I --> J["Attesa elaborazione admin"]
+                    J --> K["elaboraCodaBonifici()"]
+                    K --> L["dequeueBonifico()"]
+                    L --> M["Accredito e storico"]
+                    M --> N["pushNotifica() al beneficiario"]
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Utente · Ricorrenze</div>
+            <h2>3.9 Gestione Spese e Ricorrenze 📅</h2>
+            <div class="image-container">
+              <img src="utente-gestione-movimenti-programmati.png" alt="Menu Gestione Movimenti Programmati">
+            </div>
+            <p style="font-size: 0.55em; color: #d9e6ff;">L'opzione 2 apre l'interfaccia dedicata ai flussi temporali ciclici. Il sistema stampa l'elenco dei movimenti ricorrenti attivi memorizzati in una lista collegata secondaria, elemento cardine per alimentarci i calcoli del Forecasting.</p>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Utente · Nuova Spesa</div>
+            <h2>3.10 Inserimento Movimento Programmato ➕</h2>
+            <div class="image-container">
+              <img src="utente-gestione-movimenti-programmati-inserimento-nuovo-movimento.png" alt="Inserimento Nuovo Movimento">
+            </div>
+            <div class="card accent-storage">
+              <p style="font-size: 0.52em; color: #edf5ff;"><strong>Clausole Calendariali:</strong> L'utente inserisce la descrizione, l'importo e la cadenza d'intervallo. Prima di procedere all'allocazione, il sistema comprime la data e verifica che l'inizio della programmazione non risieda nel passato rispetto a <span class="code-inline">dataSimulata</span>, rigettando tempestivamente l'anomalia.</p>
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Utente · Rimozione Spesa</div>
+            <h2>3.11 Rimozione Movimento Programmato ➖</h2>
+            <div class="image-container">
+              <img src="utente-gestione-movimenti-programmati-eliminazione-nuovo-movimento.png" alt="Eliminazione Movimento Programmato">
+            </div>
+            <div class="card accent-storage">
+              <p style="font-size: 0.52em; color: #edf5ff;"><strong>Sgancio Logico del Nodo:</strong> La selezione richiama la funzione <span class="code-inline">eliminaMovimentoProgrammato()</span>. Il sistema scansiona l'albero collegato cercando il match esatto della stringa descrittiva, sgancia il rispettivo nodo modificando i puntatori adiacenti e libera istantaneamente la memoria tramite <span class="code-inline">free()</span>.</p>
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Utente · Centro Notifiche</div>
+            <h2>3.12 Notifiche: Consumo della Pila (LIFO) 🔔</h2>
+            <div class="cols-3">
+              <div class="image-container" style="margin:0;"><img src="utente-notifica-iban-prenotato.png" alt="Notifica Prenotato"></div>
+              <div class="image-container" style="margin:0;"><img src="utente-notifica-iban-elaborato.png" alt="Notifica Elaborato"></div>
+              <div class="image-container" style="margin:0;"><img src="utente-notifica-iban-ricevuto.png" alt="Notifica Ricevuto"></div>
+            </div>
+            <div class="card accent-ui" style="margin-top: 14px;">
+              <p style="font-size: 0.52em; color: #edf5ff;">L'opzione 5 esegue il pop della pila notifiche. Rispettando il principio Last-In-First-Out, la <span class="code-inline">popNotifica()</span> estrae il messaggio più recente inserito nel vettore dinamico (come la prenotazione del bonifico, l'accredito elaborato dall'Admin o la ricezione di fondi), lo mostra a video e lo distrugge definitivamente.</p>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section>
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Capitolo 4 · Analisi</div>
+            <h2>Capitolo 4: Data Mining, Ordinamento e Forecasting</h2>
+            <div class="card accent-sort" style="margin-top: 20px;">
+              <p style="font-size: 0.75em; line-height: 1.7;">La memorizzazione dei dati perde di significato se non viene affiancata da strumenti di estrazione analitica. Abbiamo dotato l'ecosistema di moduli avanzati per l'interpretazione dello storico e lo sviluppo di modelli predittivi.</p>
+              <p style="font-size: 0.75em; line-height: 1.7; margin-top: 14px;">Attraverso il Bubble Sort e l'applicazione dell'operatore matematico modulo "%", il software è in grado di organizzare cronologicamente gli estratti conto e di generare proiezioni finanziarie a lungo termine.</p>
+            </div>
+            <div class="box" style="text-align: center; border-left: 5px solid var(--cyan);">
+              ↓ Scorri in basso per i risultati di Ordinamento e Forecasting.
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Mining · Parametri</div>
+            <h2>4.0 Configurazione Filtri Storico 📊</h2>
+            <div class="image-container">
+              <img src="utente-visualizzazione-storico-con-criteri-filtri.png" alt="Menu Configurazione Criteri Storico">
+            </div>
+            <p style="font-size: 0.55em; color: #d9e6ff;">L'opzione 3 introduce i parametri di filtraggio estratti conto. Permette al cliente di impostare la direzione temporale di ordinamento o di circoscrivere lo scorrimento dei blocchi RAM ad un mese e anno specifici.</p>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Mining · Estratto Conto</div>
+            <h2>4.1 Rendering e Bubble Sort Ottimizzato 🧾</h2>
+            <div class="image-container">
+              <img src="utente-visualizzazione-storico-con-criteri-filtri-piu-recente-tutti.png" alt="Storico Transazioni con Colori ANSI">
+            </div>
+            <div class="card accent-sort">
+              <p style="font-size: 0.52em; color: #edf5ff;"><strong>Complessità Caso Migliore O(N) e Colori ANSI:</strong> La funzione <span class="code-inline">ordinaStorico()</span> organizza i nodi via Bubble Sort, arrestandosi subito se il flag <span class="code-inline">scambiato</span> rimane a zero. In fase di stampa, la sottofunzione <span class="code-inline">strstr()</span> scansiona la descrizione: se individua parole come "Prelievo" o "Inviato", inietta dinamicamente il colore ANSI rosso, altrimenti applica il verde neon.</p>
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Forecasting · Setup</div>
+            <h2>4.2 Innesco Motore Predittivo 🔮</h2>
+            <div class="image-container">
+              <img src="utente-previsione.png" alt="Menu Motore di Previsione">
+            </div>
+            <p style="font-size: 0.55em; color: #d9e6ff;">L'opzione 4 richiama il modulo di calcolo probabilistico. Il sistema richiede in input la profondità temporale del Fast-Forward in mesi, preparando la logica RAM per generare l'universo parallelo di simulazione finanziaria.</p>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Forecasting · Collisione</div>
+            <h2>4.3 Rilevamento Collisioni e Overdraft ⚠️</h2>
+            <div class="image-container">
+              <img src="utente-previsione-non-stabile.png" alt="Previsione Conto In Rosso">
+            </div>
+            <div class="card accent-time">
+              <p style="font-size: 0.52em; color: #edf5ff;"><strong>Isolamento Ingegneristico ed Algoritmo Modulo (%):</strong> La funzione <span class="code-inline">generaPrevisione()</span> clona il saldo in una variabile isolata <span class="code-inline">saldoVirtuale</span> per non alterare i dati reali. Calcola le scadenze cicliche con l'operatore <span class="code-inline">(deltaMesi % m->intervalloMesi == 0)</span>. Se il saldo virtuale scende sotto lo zero, l'algoritmo calcola l'ammontare esatto della passività, segnala la collisione e suggerisce l'azione ripianatrice.</p>
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Forecasting · Coerenza</div>
+            <h2>4.4 Coerenza Finanziaria Validata ✨</h2>
+            <div class="image-container">
+              <img src="utente-previsione-stabile.png" alt="Previsione Conto Stabile">
+            </div>
+            <p style="font-size: 0.55em; color: #d9e6ff;">Se l'orizzonte temporale simulato si conclude senza mai mandare in passività il <span class="code-inline">saldoVirtuale</span>, l'algoritmo emette un resoconto positivo completo. Questo modulo dimostra l'efficacia delle liste concatenate secondarie nel processare filtri predittivi asincroni.</p>
+          </div>
+        </section>
+      </section>
+
+      <section>
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Shutdown · Deallocazione</div>
+            <h2>5.1 Consolidamento e Spegnimento Sicuro 🧹</h2>
+            <div class="image-container">
+              <img src="main-spegnimento-sistema.png" alt="Spegnimento del Sistema">
+            </div>
+            <p style="font-size: 0.55em; color: #d9e6ff;">La selezione dell'opzione <span class="code-inline">0</span> interrompe il loop infinito dell'orchestratore, avviando la chiusura controllata dell'ambiente hardware.</p>
+            <ul style="margin: 10px 0 0 15px; padding: 0;">
+              <li style="font-size: 0.53em; margin-bottom: 6px; color: #d7e7ff;">Viene invocata la <span class="code-inline">salvaDatabase()</span> che esegue un dump finale serializzato per congelare lo stato delle liste su file TXT.</li>
+              <li style="font-size: 0.53em; color: #d7e7ff;">Viene lanciata la <span class="code-inline">liberaDatabase()</span>: l'algoritmo attua uno svuotamento gerarchico in modalità <em>Bottom-Up</em>, distruggendo prima i nodi secondari (Notifiche, Movimenti, Storico) ed eliminando infine la radice Utente. La memoria viene restituita al SO intatta allo 100%.</li>
+            </ul>
+            <div class="box" style="text-align: center; border-left: 5px solid var(--red);">
+              ↓ Scorri in basso per visualizzare il diagramma logico dello spegnimento gerarchico.
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="slide">
+          <div class="section-frame">
+            <div class="section-badge">Diagramma · Spegnimento</div>
+            <div class="flow-wrap">
+              <div class="mermaid">
+                flowchart TD
+                    A["main: scelta 0"] --> B["Break del ciclo while"]
+                    B --> C["salvaDatabase()"]
+                    C --> D["liberaDatabase()"]
+                    D --> E["Dealloca NodoPila"]
+                    E --> F["Dealloca Movimento"]
+                    F --> G["Dealloca Transazione"]
+                    G --> H["Dealloca Utente"]
+                    H --> I["return 0"]
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="zoom">
+          <div class="section-frame text-center" style="text-align: center;">
+            <div class="section-badge">Traguardo</div>
+            <h1 class="gradient-text highlight">Il Risultato Finale 🎯</h1>
+            <div class="cols-2" style="text-align: left; margin-top: 30px;">
+              <div class="card accent-main">
+                <h4>Logiche Implementate per la Gestione</h4>
+                <p>Gestione di struct dinamiche (FIFO, LIFO), algoritmi di ordinamento ottimizzati e gestione integrata delle interfacce.</p>
+              </div>
+              <div class="card accent-arch">
+                <h4>Logiche Implementate per la Sicurezza</h4>
+                <p>Architettura software basata sulla modularità, isolamento degli input contro attacchi di Buffer Overflow, crittografia irreversibile (djb2), convalida stringhe tramite Regex e audit di boot anti-manomissione.</p>
+              </div>
+            </div>
+            <h2 class="highlight" style="margin-top: 40px;">Grazie per l'attenzione! 🚀</h2>
+          </div>
+        </section>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+  <!-- Plugin nativo Zoom di Reveal.js per permettere Alt+Click -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/zoom/zoom.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  
+  <script>
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'base',
+      securityLevel: 'loose',
+      themeVariables: {
+        background: '#081124',
+        primaryColor: '#12233f',
+        primaryTextColor: '#eaf2ff',
+        primaryBorderColor: '#47d7ff',
+        lineColor: '#60a5fa',
+        secondaryColor: '#122b47',
+        tertiaryColor: '#0a172b',
+        edgeLabelBackground: '#081124',
+        clusterBkg: '#0d203b',
+        clusterBorder: '#34f5c5',
+        fontFamily: 'Inter, Segoe UI, sans-serif'
+      },
+      flowchart: {
+        curve: 'basis',
+        htmlLabels: true,
+        nodeSpacing: 35,
+        rankSpacing: 45,
+        padding: 14
+      }
+    });
+
+    Reveal.initialize({
+      hash: true,
+      controls: true,
+      progress: true,
+      slideNumber: 'c/t',
+      center: true,
+      width: 1200,
+      height: 800,
+      minScale: 0.2,  
+      maxScale: 2.0,  
+      margin: 0.08,
+      transition: 'slide',
+      backgroundTransition: 'fade',
+      viewDistance: 3,
+      keyboard: true,
+      // Abilitazione del plugin Zoom
+      plugins: [ RevealZoom ]
+    }).then(() => {
+      const renderMermaids = () => {
+        document.querySelectorAll('.mermaid').forEach((el, i) => {
+          if (el.dataset.processed) return;
+          const graph = el.textContent;
+          const id = 'mmd-' + i + '-' + Math.random().toString(36).slice(2, 8);
+          mermaid.render(id, graph).then(({ svg }) => {
+            el.innerHTML = svg;
+            el.dataset.processed = 'true';
+          });
+        });
+      };
+      renderMermaids();
+      Reveal.on('slidechanged', renderMermaids);
+    });
+  </script>
+</body>
+</html>
